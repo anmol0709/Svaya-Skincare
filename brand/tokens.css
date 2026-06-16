@@ -1,0 +1,65 @@
+/* ============================================================
+   SVĀYA — BRAND DESIGN TOKENS  (Step 0 / brandkit)
+   Drop into globals.css. Single source of truth for the site.
+   Korean fermentation × Ayurvedic ritual · warm ivory + saffron
+   ============================================================ */
+:root {
+  /* — Color: surfaces — */
+  --sv-ivory:        #F6F1E7;  /* primary background */
+  --sv-ivory-deep:   #EFE7D6;  /* alt section / cards */
+  --sv-sand:         #E7DCC7;  /* raised card / chips */
+
+  /* — Color: ink / text — */
+  --sv-ink:          #2C2A22;  /* primary text / headlines */
+  --sv-taupe:        #514C3E;  /* body text */
+  --sv-dim:          #8A8270;  /* min contrast on ivory — never lighter */
+
+  /* — Color: brand accents — */
+  --sv-saffron:      #C0822E;  /* signature accent / CTAs / links */
+  --sv-saffron-hi:   #A86C1F;  /* hover (darkens on light) */
+  --sv-marigold:     #E0A126;  /* small highlights / glow */
+  --sv-terracotta:   #B5654D;  /* secondary accent (sparingly) */
+  --sv-neem:         #2E3326;  /* deep botanical green */
+  --sv-brass:        #C9A86A;  /* metallic detail / dividers */
+
+  /* — Lines & glows — */
+  --sv-line:         rgba(192,130,46,0.22);
+  --sv-line-soft:    rgba(44,42,34,0.08);
+  --sv-glow:         rgba(192,130,46,0.12);
+  --sv-on-accent:    #FFFDF8;  /* text on saffron buttons */
+
+  /* — Type — */
+  --sv-font-display: "Playfair Display", Georgia, serif;
+  --sv-font-body:    "Inter", system-ui, -apple-system, sans-serif;
+  --sv-weight-display: 400;
+  --sv-weight-body:    300;
+  --sv-label: 0.65rem;            /* uppercase label size */
+  --sv-tracking-label: 0.25em;
+
+  /* — Spacing scale — */
+  --sv-1: 4px;  --sv-2: 8px;  --sv-3: 16px;
+  --sv-4: 24px; --sv-5: 40px; --sv-6: 64px; --sv-7: 96px;
+
+  /* — Radius & motion — */
+  --sv-radius: 10px;
+  --sv-radius-pill: 999px;
+  --sv-ease: cubic-bezier(0.25, 0, 0, 1);
+}
+
+/* Reusable primitives ------------------------------------- */
+.sv-label {
+  font-family: var(--sv-font-body); font-size: var(--sv-label);
+  letter-spacing: var(--sv-tracking-label); text-transform: uppercase;
+  color: var(--sv-saffron);
+}
+.sv-btn {
+  font-family: var(--sv-font-body); font-weight: 500;
+  font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 0.9rem 2.6rem; border-radius: var(--sv-radius-pill);
+  background: var(--sv-saffron); color: var(--sv-on-accent);
+  border: 1px solid var(--sv-saffron); cursor: pointer;
+  transition: all 0.3s var(--sv-ease);
+}
+.sv-btn:hover { background: var(--sv-saffron-hi); border-color: var(--sv-saffron-hi); }
+.sv-btn--ghost { background: transparent; color: var(--sv-saffron); }
+.sv-btn--ghost:hover { background: var(--sv-saffron); color: var(--sv-on-accent); }

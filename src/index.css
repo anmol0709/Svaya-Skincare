@@ -1,0 +1,114 @@
+/* Brand tokens (single source of truth) */
+@import "../brand/tokens.css";
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--sv-ivory);
+  color: var(--sv-ink);
+  font-family: var(--sv-font-body);
+  font-weight: var(--sv-weight-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font-family: inherit; }
+
+h1, h2, h3 { font-family: var(--sv-font-display); font-weight: 400; line-height: 1.12; letter-spacing: 0.01em; }
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.section { padding: var(--sv-7) 0; }
+.eyebrow { font-family: var(--sv-font-body); font-size: var(--sv-label); letter-spacing: var(--sv-tracking-label); text-transform: uppercase; color: var(--sv-saffron); }
+.muted { color: var(--sv-taupe); }
+.center { text-align: center; }
+
+/* Buttons */
+.btn {
+  display: inline-block; font-weight: 500; font-size: 0.72rem; letter-spacing: 0.16em;
+  text-transform: uppercase; padding: 0.95rem 2.4rem; border-radius: var(--sv-radius-pill);
+  background: var(--sv-saffron); color: var(--sv-on-accent); border: 1px solid var(--sv-saffron);
+  cursor: pointer; transition: all 0.3s var(--sv-ease);
+}
+.btn:hover { background: var(--sv-saffron-hi); border-color: var(--sv-saffron-hi); }
+.btn--ghost { background: transparent; color: var(--sv-saffron); }
+.btn--ghost:hover { background: var(--sv-saffron); color: var(--sv-on-accent); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Cards */
+.grid { display: grid; gap: 28px; }
+.grid--products { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+.product-card {
+  background: var(--sv-ivory-deep); border: 1px solid var(--sv-line);
+  border-radius: var(--sv-radius); overflow: hidden; display: flex; flex-direction: column;
+  transition: transform 0.4s var(--sv-ease), box-shadow 0.4s var(--sv-ease);
+}
+.product-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(44,42,34,0.08); }
+.product-card .visual { display: block; background: var(--sv-ivory); overflow: hidden; }
+.product-card .visual img { transition: transform 0.6s var(--sv-ease); }
+.product-card:hover .visual img { transform: scale(1.04); }
+.product-card .body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.product-card .cat { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sv-dim); }
+.product-card .name { font-family: var(--sv-font-display); font-size: 1.25rem; }
+.product-card .blurb { font-size: 0.82rem; color: var(--sv-taupe); flex: 1; }
+.product-card .row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.product-card .price { font-weight: 500; color: var(--sv-ink); }
+
+/* Forms */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; min-width: 0; }
+.field label { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sv-dim); }
+.field input, .field select, .field textarea {
+  font-family: inherit; font-size: 0.95rem; padding: 12px 14px; border-radius: 8px;
+  border: 1px solid var(--sv-line); background: #fff; color: var(--sv-ink);
+  width: 100%; min-width: 0; box-sizing: border-box;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--sv-saffron); }
+
+/* Utility */
+.divider { height: 1px; background: var(--sv-line); border: 0; }
+.pill {
+  font-size: 0.68rem; letter-spacing: 0.06em; padding: 6px 14px; border-radius: var(--sv-radius-pill);
+  border: 1px solid var(--sv-line); background: transparent; color: var(--sv-taupe); cursor: pointer;
+  transition: all 0.25s var(--sv-ease);
+}
+.pill.active, .pill:hover { background: var(--sv-saffron); color: var(--sv-on-accent); border-color: var(--sv-saffron); }
+
+@media (max-width: 768px) {
+  .section { padding: var(--sv-6) 0; }
+}
+
+/* Product render: specular shimmer sweep across the glass */
+@keyframes sv-sheen-sweep {
+  0%   { transform: translateX(0); opacity: 0; }
+  12%  { opacity: 1; }
+  60%  { opacity: 1; }
+  72%  { transform: translateX(370px); opacity: 0; }
+  100% { transform: translateX(370px); opacity: 0; }
+}
+.sv-sheen { animation: sv-sheen-sweep 5.5s var(--sv-ease) infinite; will-change: transform; }
+.product-card:hover .sv-sheen { animation-duration: 2.6s; }
+
+/* Landing hero: ambient saffron motes */
+@keyframes sv-mote-drift {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  20%  { opacity: 0.8; }
+  80%  { opacity: 0.8; }
+  100% { transform: translateY(-44px) translateX(12px); opacity: 0; }
+}
+.sv-mote { animation: sv-mote-drift 7s ease-in-out infinite; }
+
+/* Landing hero: brand name blooms out of a blur on load */
+@keyframes sv-name-in {
+  0%   { opacity: 0; filter: blur(16px); letter-spacing: 0.4em; }
+  100% { opacity: 1; filter: blur(0); letter-spacing: 0.09em; }
+}
+.sv-hero-name { animation: sv-name-in 1.3s var(--sv-ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-sheen, .sv-mote, .sv-hero-name { animation: none !important; }
+}

@@ -1,0 +1,17 @@
+# Render Blueprint — one Node web service that builds the frontend and serves
+# both the static site and the /api payment routes from a single process.
+# In Render: New > Blueprint > pick this repo. It auto-fills everything below;
+# you only paste the two Razorpay values (or leave them blank for MOCK mode).
+services:
+  - type: web
+    name: svaya-site
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    # Render injects PORT automatically; the server reads process.env.PORT.
+    envVars:
+      - key: RAZORPAY_KEY_ID
+        sync: false   # prompted in the dashboard; leave blank for MOCK payments
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
