@@ -1,29 +1,27 @@
 import { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useReducedMotion } from 'framer-motion'
-import { getProduct } from '../data/products.js'
 
-// Cinematic, scroll-choreographed landing — driven IMPERATIVELY for smoothness.
-//   Act 1  the brand name resolves out of a blur inside a marigold spotlight.
-//   Act 2  the brushed-gold cap FLIES a curved Bezier path, spinning, while three lines
-//          of the Svaya story cross-fade and faint ingredient tags drift past it.
-//   Act 3  the cap SEATS onto the bottle neck; the assembled vessel dissolves into the
-//          photoreal product and the name + CTA rise.
-//
-// Why imperative: a rAF loop that calls setState every frame forces a full React
-// re-render per frame -> jank. Instead we read scroll once per frame, EASE the progress
-// toward its target (lerp = inertia/smoothness), then write transforms/opacity straight
-// to element refs. Zero React renders during scroll. The cap rides the SVG `transform`
-// ATTRIBUTE (the reliable path for an SVG <g>). Respects prefers-reduced-motion.
+// Cinematic, scroll-choreographed landing — imperative for smoothness, REAL photography
+// for the payoff (no SVG bottle).
+//   Act 1  the brand name resolves out of a blur.
+//   Act 2  a brushed-gold cap (pure CSS) detaches FROM the name and arcs along the right
+//          side — framing, never covering, the three Svaya story lines — while faint
+//          ingredient tags drift in the margins.
+//   Act 3  the cap descends to centre and the photoreal serum BLOOMS into being with a
+//          saffron flash; the finished product holds with the name + CTA.
+// Driven by a rAF loop that EASES progress (lerp = inertia) and writes transforms/opacity
+// straight to refs — zero React renders per frame. Respects prefers-reduced-motion.
 
 const HERO_SLUG = 'saffron-radiance-serum'
-const P = [[18, 30], [88, 16], [12, 70], [50, 73]] // cap path; P3 = seat above the neck
+// cap path in stage PERCENT coords; P0 = on the name, P3 = onto the blooming bottle
+const P = [[50, 27], [88, 26], [74, 50], [50, 45]]
 const bez = (t, i) => {
   const u = 1 - t
   return u * u * u * P[0][i] + 3 * u * u * t * P[1][i] + 3 * u * t * t * P[2][i] + t * t * t * P[3][i]
 }
 const clamp = (v) => Math.max(0, Math.min(1, v))
-const smooth = (t) => t * t * t * (t * (t * 6 - 15) + 10) // smootherstep
+const smooth = (t) => t * t * t * (t * (t * 6 - 15) + 10)
 function track(p, xs, ys) {
   if (p <= xs[0]) return ys[0]
   for (let i = 1; i < xs.length; i++) {
@@ -41,61 +39,27 @@ const STORY = [
   { k: 'The marriage', t: 'Korean fermentation, married to Ayurvedic ritual.' },
   { k: 'The promise', t: 'Radiance is earned, gently, day after day.' }
 ]
-// Drifting ingredient tags fill the empty space during the cap's flight.
+// tags live in the side/corner margins so they never collide with the centred story
 const TAGS = [
-  { t: 'Kumkumadi saffron', x: '14%', y: '32%', a: 0.15, b: 0.40 },
-  { t: 'Korean niacinamide', x: '70%', y: '26%', a: 0.20, b: 0.46 },
-  { t: 'Fermented ginseng', x: '22%', y: '64%', a: 0.28, b: 0.52 },
-  { t: 'Centella · cica', x: '74%', y: '60%', a: 0.34, b: 0.56 },
-  { t: 'Bakuchiol', x: '46%', y: '19%', a: 0.40, b: 0.60 }
+  { t: 'Kumkumadi saffron', x: '12%', y: '36%', a: 0.15, b: 0.42 },
+  { t: 'Korean niacinamide', x: '85%', y: '64%', a: 0.20, b: 0.48 },
+  { t: 'Fermented ginseng', x: '13%', y: '66%', a: 0.28, b: 0.54 },
+  { t: 'Centella · cica', x: '86%', y: '34%', a: 0.34, b: 0.58 }
 ]
 
-function HeroBottle({ glowRef }) {
-  return (
-    <g>
-      <ellipse cx="50" cy="139" rx="15" ry="2.4" fill="#2C2A22" opacity="0.12" />
-      <circle ref={glowRef} cx="50" cy="108" r="26" fill="#E0A126" opacity="0" />
-      <rect x="44.5" y="75" width="11" height="9" rx="2" fill="#F4EEE1" stroke="#E1D6BF" strokeWidth="0.4" />
-      <rect x="38" y="82" width="24" height="54" rx="8" fill="url(#hg-glass)" stroke="#C7A05A" strokeWidth="0.5" />
-      <clipPath id="hg-clip"><rect x="38.6" y="82.6" width="22.8" height="52.8" rx="7.4" /></clipPath>
-      <g clipPath="url(#hg-clip)">
-        <rect x="38" y="104" width="24" height="34" fill="url(#hg-liq)" />
-        <ellipse cx="50" cy="104" rx="11" ry="1.6" fill="#fff" opacity="0.25" />
-      </g>
-      <rect x="40.5" y="100" width="19" height="21" rx="2" fill="#FBF7EE" stroke="#E1D6BF" strokeWidth="0.4" />
-      <text x="50" y="109" textAnchor="middle" fontFamily="'Playfair Display', serif" fontSize="5" fill="#2C2A22">Sv&#257;ya</text>
-      <line x1="46" y1="112" x2="54" y2="112" stroke="#C9A86A" strokeWidth="0.4" />
-      <text x="50" y="117.5" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="1.9" letterSpacing="0.2" fill="#6B6450">SAFFRON RADIANCE</text>
-      <rect x="40" y="86" width="2.4" height="44" rx="1.2" fill="#fff" opacity="0.6" />
-    </g>
-  )
-}
-
-function Cap() {
-  return (
-    <g>
-      <rect x="-5" y="2.4" width="10" height="3.6" rx="1.2" fill="url(#hg-gold)" />
-      <rect x="-4" y="-5.6" width="8" height="8.2" rx="2.6" fill="url(#hg-gold)" stroke="#A8842F" strokeWidth="0.3" />
-      <rect x="-2.4" y="-8.6" width="4.8" height="3.6" rx="1.4" fill="#B8924E" />
-      <rect x="-3.4" y="-4.6" width="1.5" height="6.4" rx="0.7" fill="#F4E3B4" opacity="0.85" />
-    </g>
-  )
-}
-
-function FinaleContent() {
+function FinaleContent({ imgRef }) {
   const [photo, setPhoto] = useState(true)
   return (
     <>
-      {photo ? (
-        <img
-          src={`/images/${HERO_SLUG}.jpg`}
-          alt="Svaya Saffron Radiance Serum"
-          onError={() => setPhoto(false)}
-          style={finaleImg}
-        />
-      ) : (
-        <div style={{ ...finaleImg, display: 'grid', placeItems: 'center', color: 'var(--sv-dim)' }}>Svāya</div>
-      )}
+      <div style={finaleImgWrap}>
+        <span style={finaleGlow} aria-hidden="true" />
+        {photo ? (
+          <img ref={imgRef} src={`/images/${HERO_SLUG}.jpg`} alt="Svaya Saffron Radiance Serum"
+            onError={() => setPhoto(false)} style={finaleImg} />
+        ) : (
+          <div ref={imgRef} style={{ ...finaleImg, display: 'grid', placeItems: 'center', color: 'var(--sv-dim)', fontFamily: 'var(--sv-font-display)', fontSize: '2rem' }}>Svāya</div>
+        )}
+      </div>
       <h2 style={revealH}>Saffron Radiance Serum</h2>
       <p style={revealSub}>Kumkumadi saffron meets Korean niacinamide. A daily return to your most radiant self.</p>
       <Link to={`/product/${HERO_SLUG}`} className="btn">Explore the Ritual</Link>
@@ -107,17 +71,14 @@ export default function ScrollHero() {
   const reduce = useReducedMotion()
   const sectionRef = useRef(null)
   const capRef = useRef(null)
-  const bottleRef = useRef(null)
-  const sceneRef = useRef(null)
-  const guideRef = useRef(null)
-  const glowRef = useRef(null)
   const nameRef = useRef(null)
-  const tagRef = useRef(null)
+  const tagLineRef = useRef(null)
   const spotRef = useRef(null)
-  const ringsRef = useRef(null)
+  const glowRef = useRef(null)
   const storyRefs = useRef([])
   const tagRefs = useRef([])
   const finaleRef = useRef(null)
+  const finaleImgRef = useRef(null)
   const railDotRef = useRef(null)
   const hintRef = useRef(null)
 
@@ -128,48 +89,44 @@ export default function ScrollHero() {
     const set = (el, prop, val) => { if (el) el.style[prop] = val }
 
     const apply = (p) => {
-      // Choreography is front-loaded so the finished product HOLDS on screen for the
-      // final ~22% of scroll (0.78 -> 1.0) instead of flashing past at the unpin point.
-      const t = smooth(clamp((p - 0.12) / 0.46)) // cap flight 0.12 -> 0.58
+      // cap flight 0.13 -> 0.58, then it fades onto the blooming bottle
+      const t = smooth(clamp((p - 0.13) / 0.45))
       const capX = bez(t, 0)
       const capY = bez(t, 1)
-      const capRot = (1 - t) * 900
-      capRef.current?.setAttribute('transform', `translate(${capX.toFixed(2)} ${capY.toFixed(2)}) rotate(${capRot.toFixed(1)})`)
-
-      set(sceneRef.current, 'opacity', track(p, [0.64, 0.72], [1, 0]))
-      set(bottleRef.current, 'opacity', track(p, [0.46, 0.57], [0, 1]))
-      set(guideRef.current, 'opacity', track(p, [0.12, 0.18, 0.5, 0.58], [0, 0.7, 0.7, 0]))
-      glowRef.current?.setAttribute('opacity', track(p, [0.57, 0.66, 1], [0, 0.2, 0.12]).toFixed(3))
+      const capRot = (1 - t) * 820
+      if (capRef.current) {
+        capRef.current.style.left = capX.toFixed(2) + '%'
+        capRef.current.style.top = capY.toFixed(2) + '%'
+        capRef.current.style.transform = `translate(-50%, -50%) rotate(${capRot.toFixed(1)}deg)`
+        capRef.current.style.opacity = track(p, [0, 0.05, 0.5, 0.6], [0, 1, 1, 0])
+      }
 
       // Act 1 name + spotlight
-      set(nameRef.current, 'opacity', track(p, [0, 0.06, 0.12], [1, 1, 0]))
-      set(nameRef.current, 'transform', `translateY(${track(p, [0.05, 0.12], [0, -34]).toFixed(1)}px)`)
-      set(tagRef.current, 'opacity', track(p, [0, 0.06, 0.11], [1, 1, 0]))
-      set(spotRef.current, 'opacity', track(p, [0, 0.18, 0.26], [0.9, 0.9, 0.16]))
-      set(spotRef.current, 'transform', `scale(${track(p, [0, 0.24], [0.92, 1.25]).toFixed(3)})`)
-      // ripple rings expand then fade as the story begins
-      set(ringsRef.current, 'opacity', track(p, [0, 0.1, 0.26], [0.5, 0.5, 0]))
-      set(ringsRef.current, 'transform', `scale(${track(p, [0, 0.26], [0.85, 1.5]).toFixed(3)})`)
+      set(nameRef.current, 'opacity', track(p, [0, 0.07, 0.13], [1, 1, 0]))
+      set(nameRef.current, 'transform', `translateY(${track(p, [0.05, 0.13], [0, -36]).toFixed(1)}px)`)
+      set(tagLineRef.current, 'opacity', track(p, [0, 0.07, 0.12], [1, 1, 0]))
+      set(spotRef.current, 'opacity', track(p, [0, 0.2, 0.3], [0.9, 0.9, 0.14]))
+      set(spotRef.current, 'transform', `scale(${track(p, [0, 0.26], [0.92, 1.25]).toFixed(3)})`)
 
-      // story beats (within the flight window)
+      // story beats (kept clear of the cap's right-side arc)
       storyRefs.current.forEach((el, i) => {
-        const o = [bell(p, 0.13, 0.18, 0.24, 0.3), bell(p, 0.28, 0.34, 0.4, 0.46), bell(p, 0.43, 0.49, 0.54, 0.59)][i]
+        const o = [bell(p, 0.15, 0.2, 0.27, 0.33), bell(p, 0.3, 0.35, 0.42, 0.48), bell(p, 0.45, 0.5, 0.55, 0.6)][i]
         set(el, 'opacity', o)
-        set(el, 'transform', `translateY(${((1 - o) * 14).toFixed(1)}px)`)
+        set(el, 'transform', `translateY(${((1 - o) * 16).toFixed(1)}px)`)
       })
-      // drifting ingredient tags
+      // legible ingredient tags
       tagRefs.current.forEach((el, i) => {
-        const cfg = TAGS[i]
-        set(el, 'opacity', bell(p, cfg.a, cfg.a + 0.05, cfg.b - 0.05, cfg.b) * 0.9)
+        const c = TAGS[i]
+        set(el, 'opacity', bell(p, c.a, c.a + 0.04, c.b - 0.04, c.b))
       })
 
-      // finale settles by ~0.78, then holds. NB: keep the -50% vertical centering in the
-      // transform we set here, or the column drops half a screen and the CTA falls below fold.
-      set(finaleRef.current, 'opacity', track(p, [0.66, 0.76], [0, 1]))
-      const fRise = track(p, [0.66, 0.78], [30, 0])
-      const fScale = track(p, [0.66, 0.78], [0.965, 1])
-      set(finaleRef.current, 'transform', `translateY(calc(-50% + ${fRise.toFixed(1)}px)) scale(${fScale.toFixed(3)})`)
-      set(finaleRef.current, 'pointerEvents', p > 0.74 ? 'auto' : 'none')
+      // Act 3 — saffron flash + photoreal bloom, settles by ~0.74 then HOLDS
+      glowRef.current && (glowRef.current.style.opacity = track(p, [0.52, 0.6, 0.74], [0, 0.6, 0.16]))
+      set(finaleRef.current, 'opacity', track(p, [0.56, 0.7], [0, 1]))
+      const fRise = track(p, [0.56, 0.74], [34, 0])
+      set(finaleRef.current, 'transform', `translateY(calc(-50% + ${fRise.toFixed(1)}px))`)
+      set(finaleRef.current, 'pointerEvents', p > 0.72 ? 'auto' : 'none')
+      set(finaleImgRef.current, 'transform', `scale(${track(p, [0.54, 0.72], [0.72, 1]).toFixed(3)})`)
 
       set(hintRef.current, 'opacity', track(p, [0, 0.04], [1, 0]))
       if (railDotRef.current) railDotRef.current.style.transform = `translateY(${(p * 100).toFixed(2)}px)`
@@ -181,7 +138,7 @@ export default function ScrollHero() {
         const top = el.getBoundingClientRect().top
         const range = el.offsetHeight - window.innerHeight
         const target = clamp(range > 0 ? -top / range : 0)
-        cur += (target - cur) * 0.1 // ease toward target (inertia = smoothness)
+        cur += (target - cur) * 0.1
         if (Math.abs(target - cur) < 0.0002) cur = target
         apply(cur)
       }
@@ -198,7 +155,7 @@ export default function ScrollHero() {
         <div className="container center">
           <span className="eyebrow">An East-Meets-East Ritual</span>
           <h1 style={{ fontSize: 'clamp(3rem, 12vw, 7rem)', margin: '8px 0 18px' }}>Sv&#257;ya</h1>
-          <div style={{ ...finaleWrap, position: 'static', transform: 'none', opacity: 1 }}><FinaleContent /></div>
+          <div style={{ ...finaleWrap, position: 'static', transform: 'none', opacity: 1 }}><FinaleContent imgRef={null} /></div>
         </div>
       </section>
     )
@@ -207,29 +164,23 @@ export default function ScrollHero() {
   return (
     <section ref={sectionRef} style={{ height: '420vh', position: 'relative' }}>
       <div style={stage}>
-        {/* spotlight + ripple rings + motes (ambient fillers) */}
         <div ref={spotRef} style={spotlight} />
-        <div ref={ringsRef} style={rings} aria-hidden="true">
-          {[0, 1, 2].map((i) => (
-            <span key={i} style={{ ...ring, width: 260 + i * 150, height: 260 + i * 150, opacity: 0.5 - i * 0.14 }} />
-          ))}
-        </div>
         {[...Array(7)].map((_, i) => (
           <span key={i} className="sv-mote" style={{
             position: 'absolute', width: 5, height: 5, borderRadius: '50%',
             background: 'var(--sv-marigold)', filter: 'blur(1px)',
-            left: `${10 + i * 12}%`, top: `${26 + (i % 4) * 16}%`,
+            left: `${10 + i * 12}%`, top: `${24 + (i % 4) * 16}%`,
             animationDelay: `${i * 0.9}s`, opacity: 0
           }} />
         ))}
 
-        {/* Act 1 - brand name */}
+        {/* Act 1 - brand name (cap starts here) */}
         <div ref={nameRef} style={nameWrap}>
           <h1 className="sv-hero-name" style={nameText}>Sv&#257;ya</h1>
-          <p ref={tagRef} style={tagText}>Korean fermentation, Ayurvedic ritual</p>
+          <p ref={tagLineRef} style={tagText}>Korean fermentation, Ayurvedic ritual</p>
         </div>
 
-        {/* Act 2 - story the cap flies through */}
+        {/* Act 2 - story the cap arcs past */}
         {STORY.map((s, i) => (
           <div key={i} ref={(el) => (storyRefs.current[i] = el)} style={{ ...storyWrap, opacity: 0 }}>
             <span className="eyebrow" style={{ color: 'var(--sv-saffron)' }}>{s.k}</span>
@@ -237,95 +188,82 @@ export default function ScrollHero() {
           </div>
         ))}
 
-        {/* drifting ingredient tags */}
+        {/* legible ingredient tags */}
         {TAGS.map((tg, i) => (
           <span key={i} ref={(el) => (tagRefs.current[i] = el)}
-            className="sv-tag-drift" style={{ ...tagChip, left: tg.x, top: tg.y, opacity: 0, animationDelay: `${i * 0.7}s` }}>
+            className="sv-tag-drift" style={{ ...tagChip, left: tg.x, top: tg.y, opacity: 0, animationDelay: `${i * 0.8}s` }}>
             {tg.t}
           </span>
         ))}
 
-        {/* shared SVG scene */}
-        <svg ref={sceneRef} viewBox="0 0 100 150" preserveAspectRatio="xMidYMid meet" style={sceneSvg} aria-label="Svaya serum assembling">
-          <Defs />
-          <path ref={guideRef} d="M18,30 C88,16 12,70 50,73" fill="none" stroke="#C0822E" strokeWidth="0.5"
-            strokeDasharray="0.4 2.4" strokeLinecap="round" opacity="0" />
-          <g ref={bottleRef} opacity="0"><HeroBottle glowRef={glowRef} /></g>
-          <g ref={capRef} transform="translate(18 30)"><Cap /></g>
-        </svg>
+        {/* flying cap — pure CSS, no SVG */}
+        <div ref={capRef} style={cap} aria-hidden="true">
+          <span style={capBulb} />
+          <span style={capCollar} />
+          <span style={capStem} />
+        </div>
 
         {/* Act 3 - photoreal reveal */}
-        <div ref={finaleRef} style={{ ...finaleWrap, opacity: 0, pointerEvents: 'none' }}><FinaleContent /></div>
+        <span ref={glowRef} style={centerGlow} aria-hidden="true" />
+        <div ref={finaleRef} style={{ ...finaleWrap, opacity: 0, pointerEvents: 'none' }}>
+          <FinaleContent imgRef={finaleImgRef} />
+        </div>
 
-        {/* scroll-progress rail (right edge filler + wayfinding) */}
+        {/* scroll-progress rail */}
         <div style={rail} aria-hidden="true">
           <span style={railTrack} />
           <span ref={railDotRef} style={railDot} />
         </div>
 
         <div ref={hintRef} className="muted" style={hint}>Scroll</div>
-        {/* soft seam into the next section */}
         <div style={seam} aria-hidden="true" />
       </div>
     </section>
   )
 }
 
-function Defs() {
-  return (
-    <defs>
-      <linearGradient id="hg-glass" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
-        <stop offset="16%" stopColor="#E9C98A" stopOpacity="0.5" />
-        <stop offset="52%" stopColor="#fff" stopOpacity="0.9" />
-        <stop offset="100%" stopColor="#C89A4E" stopOpacity="0.6" />
-      </linearGradient>
-      <linearGradient id="hg-liq" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#D7A23E" />
-        <stop offset="100%" stopColor="#A86C1F" />
-      </linearGradient>
-      <linearGradient id="hg-gold" x1="0" y1="0" x2="1" y2="0.2">
-        <stop offset="0%" stopColor="#9C7A2E" />
-        <stop offset="24%" stopColor="#F0DCA6" />
-        <stop offset="48%" stopColor="#C9A86A" />
-        <stop offset="72%" stopColor="#EBD49A" />
-        <stop offset="100%" stopColor="#9C7A2E" />
-      </linearGradient>
-    </defs>
-  )
-}
-
 const stage = {
   position: 'sticky', top: 0, height: '100vh', width: '100%', overflow: 'hidden',
-  background: 'radial-gradient(120% 80% at 50% 24%, #FBF7EE 0%, #F6F1E7 46%, #EFE7D6 100%)',
+  background: 'radial-gradient(120% 80% at 50% 26%, #FBF7EE 0%, #F6F1E7 46%, #EFE7D6 100%)',
   display: 'flex', alignItems: 'center', justifyContent: 'center'
 }
 const spotlight = {
   position: 'absolute', inset: 0, pointerEvents: 'none', transformOrigin: '50% 30%', opacity: 0.9, willChange: 'transform, opacity',
-  background: 'radial-gradient(circle at 50% 30%, rgba(224,161,38,0.30) 0%, rgba(224,161,38,0.09) 24%, transparent 50%)'
+  background: 'radial-gradient(circle at 50% 30%, rgba(224,161,38,0.28) 0%, rgba(224,161,38,0.08) 24%, transparent 50%)'
 }
-const rings = { position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%,-50%)', transformOrigin: 'center', pointerEvents: 'none', willChange: 'transform, opacity' }
-const ring = { position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', borderRadius: '50%', border: '1px solid rgba(192,130,46,0.28)' }
-const nameWrap = { position: 'absolute', top: '30%', left: 0, right: 0, textAlign: 'center', pointerEvents: 'none', willChange: 'transform, opacity' }
-const nameText = { fontSize: 'clamp(3.4rem, 15vw, 11rem)', lineHeight: 1, margin: 0, color: 'var(--sv-ink)' }
-const tagText = { marginTop: 18, fontFamily: 'var(--sv-font-body)', fontSize: '0.78rem', letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--sv-saffron)' }
-const storyWrap = { position: 'absolute', top: '31%', left: 0, right: 0, padding: '0 24px', textAlign: 'center', pointerEvents: 'none', willChange: 'transform, opacity' }
-const storyLine = { fontFamily: 'var(--sv-font-display)', fontSize: 'clamp(1.6rem, 5vw, 3.4rem)', lineHeight: 1.18, color: 'var(--sv-ink)', maxWidth: 760, margin: '14px auto 0' }
+const nameWrap = { position: 'absolute', top: '29%', left: 0, right: 0, textAlign: 'center', pointerEvents: 'none', willChange: 'transform, opacity' }
+const nameText = { fontSize: 'clamp(3.4rem, 14vw, 9.5rem)', lineHeight: 1, margin: 0, color: 'var(--sv-ink)', letterSpacing: '-0.01em' }
+const tagText = { marginTop: 18, fontFamily: 'var(--sv-font-body)', fontSize: '0.78rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--sv-saffron)' }
+const storyWrap = { position: 'absolute', top: '30%', left: 0, right: 0, padding: '0 24px', textAlign: 'center', pointerEvents: 'none', willChange: 'transform, opacity' }
+const storyLine = { fontFamily: 'var(--sv-font-display)', fontSize: 'clamp(1.7rem, 5vw, 3.4rem)', lineHeight: 1.18, color: 'var(--sv-ink)', maxWidth: 720, margin: '14px auto 0', textWrap: 'balance' }
+
+// ingredient tag chip — solid enough for AA contrast on ivory
 const tagChip = {
-  position: 'absolute', transform: 'translate(-50%,-50%)', fontFamily: 'var(--sv-font-body)', fontSize: '0.66rem',
-  letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--sv-saffron)', whiteSpace: 'nowrap',
-  border: '1px solid var(--sv-line)', borderRadius: 999, padding: '6px 14px', background: 'rgba(251,247,238,0.6)',
-  backdropFilter: 'blur(2px)', pointerEvents: 'none', willChange: 'opacity'
+  position: 'absolute', transform: 'translate(-50%,-50%)', fontFamily: 'var(--sv-font-body)', fontSize: '0.72rem',
+  fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--sv-saffron-hi)', whiteSpace: 'nowrap',
+  border: '1px solid rgba(192,130,46,0.4)', borderRadius: 999, padding: '8px 16px', background: 'rgba(251,247,238,0.94)',
+  boxShadow: '0 6px 16px rgba(44,42,34,0.07)', pointerEvents: 'none', willChange: 'opacity'
 }
-const sceneSvg = { position: 'absolute', inset: 0, width: '100%', height: '100%', willChange: 'opacity' }
+
+// pure-CSS brushed-gold cap
+const cap = { position: 'absolute', left: '50%', top: '27%', width: 38, height: 56, transformOrigin: 'center', willChange: 'transform, opacity', filter: 'drop-shadow(0 7px 11px rgba(44,42,34,0.22))', pointerEvents: 'none' }
+const goldGrad = 'linear-gradient(105deg, #9C7A2E 0%, #F0DCA6 24%, #C9A86A 50%, #EBD49A 74%, #9C7A2E 100%)'
+const capBulb = { position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 26, height: 30, borderRadius: '11px 11px 8px 8px', background: goldGrad, boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.55)' }
+const capCollar = { position: 'absolute', top: 28, left: '50%', transform: 'translateX(-50%)', width: 33, height: 11, borderRadius: 3, background: goldGrad }
+const capStem = { position: 'absolute', top: 38, left: '50%', transform: 'translateX(-50%)', width: 5, height: 17, borderRadius: '0 0 2px 2px', background: 'linear-gradient(to bottom, rgba(215,162,62,0.55), rgba(168,108,31,0.2))' }
+
+const centerGlow = { position: 'absolute', top: '50%', left: '50%', width: 'min(70vw, 460px)', aspectRatio: 1, transform: 'translate(-50%,-50%)', borderRadius: '50%', opacity: 0, pointerEvents: 'none', willChange: 'opacity', background: 'radial-gradient(circle, rgba(224,161,38,0.4) 0%, rgba(224,161,38,0.12) 40%, transparent 70%)' }
+
 const finaleWrap = { position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', textAlign: 'center', padding: '0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', willChange: 'transform, opacity' }
+const finaleImgWrap = { position: 'relative', display: 'grid', placeItems: 'center' }
+const finaleGlow = { position: 'absolute', width: '150%', aspectRatio: 1, borderRadius: '50%', background: 'radial-gradient(circle, rgba(224,161,38,0.16) 0%, transparent 62%)', pointerEvents: 'none' }
 const featherMask = 'radial-gradient(118% 118% at 50% 45%, #000 52%, transparent 84%)'
 const finaleImg = {
-  width: 'clamp(200px, 30vw, 320px)', aspectRatio: '7 / 9', objectFit: 'cover',
-  filter: 'drop-shadow(0 24px 40px rgba(44,42,34,0.14))',
+  position: 'relative', width: 'clamp(200px, 30vw, 320px)', aspectRatio: '7 / 9', objectFit: 'cover',
+  filter: 'drop-shadow(0 24px 40px rgba(44,42,34,0.14))', willChange: 'transform',
   WebkitMaskImage: featherMask, maskImage: featherMask
 }
-const revealH = { fontSize: 'clamp(1.8rem, 5vw, 3.4rem)', margin: '18px 0 0' }
+const revealH = { fontSize: 'clamp(1.8rem, 5vw, 3.4rem)', margin: '14px 0 0' }
 const revealSub = { maxWidth: 460, margin: '12px auto 22px', color: 'var(--sv-taupe)', fontSize: '1.02rem' }
 const rail = { position: 'absolute', right: 'max(18px, 2.4vw)', top: '50%', transform: 'translateY(-50%)', height: 120, width: 2, pointerEvents: 'none' }
 const railTrack = { position: 'absolute', inset: 0, background: 'var(--sv-line)', borderRadius: 2 }
