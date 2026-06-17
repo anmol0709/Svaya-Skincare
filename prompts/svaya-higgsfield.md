@@ -1,5 +1,9 @@
 # Svaya . Higgsfield Image Prompt Pack
 
+> **Superseded for Pollinations.** For legible wrapped-text generation via the Pollinations MCP,
+> use [`svaya-pollinations.md`](./svaya-pollinations.md) instead. This Higgsfield pack is kept for
+> reference only.
+
 How to use this with Higgsfield (higgsfield.ai):
 1. Generate ASSET 0 first (the hero bottle). Keep it.
 2. For every product, use ASSET 0 as a reference image in Higgsfield so the bottle shape,

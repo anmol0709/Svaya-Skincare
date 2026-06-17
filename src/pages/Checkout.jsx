@@ -133,9 +133,14 @@ export default function Checkout() {
             <button className="btn" style={{ width: '100%', marginTop: 20 }} onClick={handlePay} disabled={paying}>
               {paying ? 'Processing...' : `Pay ${formatINR(total)}`}
             </button>
-            <p className="muted" style={{ fontSize: '0.72rem', marginTop: 12, textAlign: 'center' }}>
-              Secured by Razorpay. Test mode, no real charge.
-            </p>
+            <div style={testNote}>
+              <div style={{ fontWeight: 600, color: 'var(--sv-ink)', marginBottom: 6 }}>Test mode — no real charge</div>
+              <div style={noteRow}><span>Card</span><span style={mono}>5267 3181 8797 5449</span></div>
+              <div style={noteRow}><span>Expiry</span><span style={mono}>any future date</span></div>
+              <div style={noteRow}><span>CVV</span><span style={mono}>any 3 digits</span></div>
+              <div style={noteRow}><span>OTP</span><span style={mono}>1234</span></div>
+              <div style={{ marginTop: 8, opacity: 0.8 }}>Use this domestic test card — Visa cards like 4111… are blocked as “international”.</div>
+            </div>
           </aside>
         </div>
       </div>
@@ -147,4 +152,7 @@ const layout = { display: 'grid', gridTemplateColumns: 'minmax(300px, 1.4fr) min
 const two = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }
 const three = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }
 const summaryBox = { background: 'var(--sv-ivory-deep)', border: '1px solid var(--sv-line)', borderRadius: 'var(--sv-radius)', padding: 28, position: 'sticky', top: 90 }
+const testNote = { marginTop: 14, padding: '12px 14px', background: 'var(--sv-ivory)', border: '1px dashed var(--sv-line)', borderRadius: 10, fontSize: '0.74rem', color: 'var(--sv-taupe)', lineHeight: 1.5 }
+const noteRow = { display: 'flex', justifyContent: 'space-between', gap: 12 }
+const mono = { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', color: 'var(--sv-ink)', letterSpacing: '0.02em' }
 const lineRow = { display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0', fontSize: '0.92rem' }

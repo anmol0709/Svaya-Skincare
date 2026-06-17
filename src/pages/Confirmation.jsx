@@ -10,7 +10,7 @@ export default function Confirmation() {
     <section className="section center">
       <div className="container" style={{ maxWidth: 560 }}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-          <svg width="64" height="64" viewBox="0 0 64 64" style={{ margin: '0 auto 20px' }} aria-hidden="true">
+          <svg width="56" height="56" viewBox="0 0 64 64" style={{ display: 'block', margin: '0 auto 18px' }} aria-hidden="true">
             <circle cx="32" cy="32" r="30" fill="none" stroke="#C0822E" strokeWidth="2" />
             <path d="M20 33 L29 42 L45 24" fill="none" stroke="#C0822E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

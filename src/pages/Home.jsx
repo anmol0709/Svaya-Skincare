@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import ScrollHero from '../components/ScrollHero.jsx'
 import ProductCard from '../components/ProductCard.jsx'
-import { products } from '../data/products.js'
+import InfoRing from '../components/InfoRing.jsx'
+import { products, getProduct } from '../data/products.js'
 
 const fadeIn = {
   initial: { opacity: 0, y: 24 },
@@ -13,6 +14,7 @@ const fadeIn = {
 
 export default function Home() {
   const featured = products.filter((p) => ['SVA-SER-01', 'SVA-OIL-13', 'SVA-SER-04', 'SVA-MOI-06'].includes(p.sku))
+  const ringProducts = ['saffron-radiance-serum', 'kumkumadi-facial-oil', 'abhyanga-day-cream'].map(getProduct)
   const values = [
     { t: 'Heritage with Proof', d: 'Ancient wisdom and clinical evidence, never one without the other.' },
     { t: 'Slow Beauty', d: 'Cumulative results over quick fixes. Care compounds.' },
@@ -36,6 +38,30 @@ export default function Home() {
               fermentation and Indian Ayurveda, into one quiet daily practice.
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <motion.div {...fadeIn} className="center" style={{ marginBottom: 48 }}>
+            <span className="eyebrow">The Ritual, Rendered</span>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', margin: '14px 0 14px' }}>
+              Everything you need, around the bottle.
+            </h2>
+            <p className="muted" style={{ maxWidth: 560, margin: '0 auto' }}>
+              Korean actives, Ayurvedic roots and the ritual itself — held in a single ring of light.
+            </p>
+          </motion.div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 40, justifyItems: 'center' }}>
+            {ringProducts.map((p, i) => (
+              <motion.div key={p.sku} {...fadeIn}
+                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.25, 0, 0, 1] }}>
+                <Link to={`/product/${p.slug}`} aria-label={p.name}>
+                  <InfoRing product={p} size={320} image={`/images/campaign/clean-${p.slug}.png`} />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

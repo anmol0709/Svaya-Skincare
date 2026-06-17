@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const pg = await b.newPage({ viewport: { width: 760, height: 1320 } })
+await pg.setContent(`<body style="margin:0;background:#F6F1E7"><video id="v" src="http://localhost:5173/hero-seal.mp4" muted playsinline preload="auto" style="width:720px;height:1280px;display:block"></video></body>`)
+await pg.waitForFunction(() => { const v = document.getElementById('v'); return v && v.readyState >= 2 && v.duration > 0 })
+await pg.evaluate(() => new Promise(r => { const v = document.getElementById('v'); v.onseeked = r; v.currentTime = v.duration * 0.93 }))
+await pg.waitForTimeout(300)
+await pg.locator('#v').screenshot({ path: 'public/images/campaign/hero-seal-poster.jpg' })
+console.log('poster saved')
+await b.close()

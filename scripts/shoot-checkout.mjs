@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const pg = await b.newPage({ viewport: { width: 1280, height: 900 } })
+await pg.goto('http://localhost:5173/shop', { waitUntil: 'networkidle' })
+await pg.getByRole('button', { name: 'Add' }).first().click()
+await pg.goto('http://localhost:5173/checkout', { waitUntil: 'networkidle' })
+await pg.waitForTimeout(400)
+await pg.screenshot({ path: '/tmp/checkout.png' })
+console.log('shot')
+await b.close()
