@@ -14,8 +14,8 @@ import { useReducedMotion } from 'framer-motion'
 // straight to refs — zero React renders per frame. Respects prefers-reduced-motion.
 
 const HERO_SLUG = 'saffron-radiance-serum'
-// cap path in stage PERCENT coords; P0 = on the name, P3 = onto the blooming bottle
-const P = [[50, 27], [88, 26], [74, 50], [50, 45]]
+// cap path in stage PERCENT coords; P0 = atop the "S" of Svaya, P3 = onto the blooming bottle
+const P = [[36, 30], [88, 26], [74, 50], [50, 45]]
 const bez = (t, i) => {
   const u = 1 - t
   return u * u * u * P[0][i] + 3 * u * u * t * P[1][i] + 3 * u * t * t * P[2][i] + t * t * t * P[3][i]
@@ -246,7 +246,7 @@ const tagChip = {
 }
 
 // pure-CSS brushed-gold cap
-const cap = { position: 'absolute', left: '50%', top: '27%', width: 38, height: 56, transformOrigin: 'center', willChange: 'transform, opacity', filter: 'drop-shadow(0 7px 11px rgba(44,42,34,0.22))', pointerEvents: 'none' }
+const cap = { position: 'absolute', left: '36%', top: '30%', width: 38, height: 56, transformOrigin: 'center', willChange: 'transform, opacity', filter: 'drop-shadow(0 7px 11px rgba(44,42,34,0.22))', pointerEvents: 'none' }
 const goldGrad = 'linear-gradient(105deg, #9C7A2E 0%, #F0DCA6 24%, #C9A86A 50%, #EBD49A 74%, #9C7A2E 100%)'
 const capBulb = { position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 26, height: 30, borderRadius: '11px 11px 8px 8px', background: goldGrad, boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.55)' }
 const capCollar = { position: 'absolute', top: 28, left: '50%', transform: 'translateX(-50%)', width: 33, height: 11, borderRadius: 3, background: goldGrad }
