@@ -3,7 +3,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22.x"
 
 # Checkout calls /api/* (the Express server in server/). Netlify is static-only, so host that
 # server separately (Render/Railway) and uncomment this proxy with your backend URL:
