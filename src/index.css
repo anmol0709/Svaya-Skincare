@@ -102,6 +102,14 @@ h1, h2, h3 { font-family: var(--sv-font-display); font-weight: 400; line-height:
 }
 .sv-mote { animation: sv-mote-drift 7s ease-in-out infinite; }
 
+/* Landing hero: ingredient tags drift gently while the cap flies */
+@keyframes sv-tag-float {
+  0%   { transform: translate(-50%, -50%); }
+  50%  { transform: translate(-50%, calc(-50% - 10px)); }
+  100% { transform: translate(-50%, -50%); }
+}
+.sv-tag-drift { animation: sv-tag-float 8s ease-in-out infinite; }
+
 /* Landing hero: brand name blooms out of a blur on load */
 @keyframes sv-name-in {
   0%   { opacity: 0; filter: blur(16px); letter-spacing: 0.4em; }
@@ -110,5 +118,5 @@ h1, h2, h3 { font-family: var(--sv-font-display); font-weight: 400; line-height:
 .sv-hero-name { animation: sv-name-in 1.3s var(--sv-ease) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sv-sheen, .sv-mote, .sv-hero-name { animation: none !important; }
+  .sv-sheen, .sv-mote, .sv-hero-name, .sv-tag-drift { animation: none !important; }
 }
