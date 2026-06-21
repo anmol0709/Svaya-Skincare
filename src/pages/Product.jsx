@@ -44,7 +44,7 @@ export default function Product() {
     <>
       <section className="section">
         <div className="container" style={layout}>
-          <div style={visualWrap}>
+          <div className="product-visual" style={visualWrap}>
             <ProductImage product={product} size={460} fill />
           </div>
 
@@ -107,7 +107,9 @@ export default function Product() {
 }
 
 const layout = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 48, alignItems: 'start' }
-const visualWrap = { background: 'var(--sv-ivory-deep)', borderRadius: 'var(--sv-radius)', border: '1px solid var(--sv-line)', overflow: 'hidden', position: 'sticky', top: 90 }
+// sticky on desktop (handled in CSS .product-visual) so it stays in view beside the details;
+// on mobile the column stacks, so it must scroll normally instead of pinning over the text
+const visualWrap = { background: 'var(--sv-ivory-deep)', borderRadius: 'var(--sv-radius)', border: '1px solid var(--sv-line)', overflow: 'hidden' }
 const benefitChip = { fontSize: '0.72rem', letterSpacing: '0.05em', padding: '6px 14px', borderRadius: 999, background: 'var(--sv-sand)', color: 'var(--sv-taupe)' }
 const qtyBox = { display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--sv-line)', borderRadius: 999, padding: '6px 12px' }
 const qtyBtn = { width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--sv-line)', background: '#fff', cursor: 'pointer', fontSize: '1.05rem' }

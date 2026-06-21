@@ -78,6 +78,12 @@ h1, h2, h3 { font-family: var(--sv-font-display); font-weight: 400; line-height:
 }
 .pill.active, .pill:hover { background: var(--sv-saffron); color: var(--sv-on-accent); border-color: var(--sv-saffron); }
 
+/* Product page: image sticks beside the details on desktop, scrolls normally on mobile */
+.product-visual { position: sticky; top: 90px; }
+@media (max-width: 768px) {
+  .product-visual { position: static; top: auto; }
+}
+
 /* Navigation: inline links on desktop, hamburger + dropdown on mobile */
 .sv-nav-links { display: flex; gap: 28px; }
 .sv-nav-toggle { display: none; }
