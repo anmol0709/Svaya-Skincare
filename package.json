@@ -4,9 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Svaya e-commerce site. Korean fermentation x Ayurvedic ritual.",
-  "engines": {
-    "node": "22.x"
-  },
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
