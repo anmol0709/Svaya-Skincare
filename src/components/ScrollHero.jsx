@@ -137,13 +137,15 @@ export default function ScrollHero() {
       const vid = videoRef.current
       if (vid) {
         vid.style.opacity = track(p, [0.46, 0.58], [0, 1]).toFixed(3)
+        // gentle cinematic push-in as it resolves — settles crisp inside the mask core
+        vid.style.transform = `scale(${track(p, [0.46, 0.66], [1.22, 1.12]).toFixed(3)})`
         if (vid.duration) {
           const t = clamp((p - SEAL_FROM) / (SEAL_TO - SEAL_FROM)) * vid.duration
           if (Math.abs(t - vid.currentTime) > 0.03) { try { vid.currentTime = t } catch (e) { /* seeking */ } }
         }
       }
       if (glowRef.current) {
-        glowRef.current.style.opacity = track(p, [0.5, 0.7, 0.95], [0, 0.55, 0.4]).toFixed(3)
+        glowRef.current.style.opacity = track(p, [0.5, 0.7, 0.95], [0, 0.42, 0.3]).toFixed(3)
         glowRef.current.style.transform = `translate(-50%,-50%) scale(${track(p, [0.5, 0.8], [0.7, 1.1]).toFixed(3)})`
       }
       set(finaleTextRef.current, 'opacity', track(p, [0.78, 0.9], [0, 1]))
@@ -291,9 +293,9 @@ const sealWrap = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 24px'
 }
 const jarBox = { position: 'relative', width: JAR_W, aspectRatio: '4 / 5', overflow: 'hidden', lineHeight: 0 }
-// soft oval feather so the video's warm backdrop dissolves into the ivory (no hard card edge)
-const jarFeather = 'radial-gradient(58% 60% at 50% 49%, #000 34%, rgba(0,0,0,0) 78%)'
-const sealVideo = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block', transform: 'scale(1.32)', opacity: 0, willChange: 'opacity' }
+// long, gradual oval feather: jar stays crisp in the centre while the studio backdrop dissolves into ivory over a wide ramp — no perceptible boundary
+const jarFeather = 'radial-gradient(62% 66% at 50% 49%, #000 30%, rgba(0,0,0,0.55) 56%, rgba(0,0,0,0) 82%)'
+const sealVideo = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block', transform: 'scale(1.12)', opacity: 0, willChange: 'opacity, transform' }
 const sealGlow = {
   position: 'absolute', left: '50%', top: '46%', width: '170%', aspectRatio: 1, borderRadius: '50%',
   transform: 'translate(-50%,-50%)', opacity: 0, pointerEvents: 'none', willChange: 'transform, opacity',
