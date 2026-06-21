@@ -78,8 +78,25 @@ h1, h2, h3 { font-family: var(--sv-font-display); font-weight: 400; line-height:
 }
 .pill.active, .pill:hover { background: var(--sv-saffron); color: var(--sv-on-accent); border-color: var(--sv-saffron); }
 
+/* Navigation: inline links on desktop, hamburger + dropdown on mobile */
+.sv-nav-links { display: flex; gap: 28px; }
+.sv-nav-toggle { display: none; }
+.sv-mobile-menu {
+  display: none; overflow: hidden; max-height: 0; padding: 0 24px;
+  background: rgba(246,241,231,0.98); border-top: 1px solid transparent;
+  transition: max-height 0.34s var(--sv-ease), border-color 0.34s var(--sv-ease);
+}
+
 @media (max-width: 768px) {
   .section { padding: var(--sv-6) 0; }
+
+  .sv-nav-links { display: none; }
+  .sv-nav-toggle {
+    display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+    width: 42px; height: 42px; padding: 9px; background: transparent; border: 0; cursor: pointer;
+  }
+  .sv-mobile-menu { display: block; }
+  .sv-mobile-menu[data-open="true"] { max-height: 240px; border-top-color: var(--sv-line); }
 }
 
 /* Product render: specular shimmer sweep across the glass */
