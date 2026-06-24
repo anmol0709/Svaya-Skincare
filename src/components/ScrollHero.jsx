@@ -69,6 +69,7 @@ export default function ScrollHero() {
   const svgRef = useRef(null)
   const guideRef = useRef(null)
   const inkRef = useRef(null)
+  const dotRef = useRef(null)
   const lenRef = useRef(0)
   const nameRef = useRef(null)
   const tagLineRef = useRef(null)
@@ -97,6 +98,7 @@ export default function ScrollHero() {
       svgRef.current.setAttribute('viewBox', `0 0 ${W} ${H}`)
       guideRef.current.setAttribute('d', d)
       inkRef.current.setAttribute('d', d)
+      dotRef.current.setAttribute('d', d)
       lenRef.current = inkRef.current.getTotalLength()
       inkRef.current.style.strokeDasharray = lenRef.current
     }
@@ -120,7 +122,8 @@ export default function ScrollHero() {
 
       // Act 2 — the line draws + the medallion rides its tip, flipping in 3D
       const ink = inkRef.current, med = medRef.current, len = lenRef.current
-      set(svgRef.current, 'opacity', track(p, [0.08, 0.16, 0.9, 0.98], [0, 1, 1, 0.4]))
+      // line (guide + dotted draw) fades fully out in step with the medallion settling at path's end
+      set(svgRef.current, 'opacity', track(p, [0.08, 0.16, 0.50, 0.60], [0, 1, 1, 0]))
       if (ink && med && len) {
         const drawn = smooth(clamp((p - 0.12) / 0.5))       // 0..1, completes ~0.62
         ink.style.strokeDashoffset = (len * (1 - drawn)).toFixed(1)
@@ -181,6 +184,7 @@ export default function ScrollHero() {
           <div style={{ ...jarBox, margin: '0 auto', maskImage: jarFeather, WebkitMaskImage: jarFeather }}>
             <span style={{ ...sealGlow, opacity: 0.4 }} aria-hidden="true" />
             <img src={SEAL_POSTER} alt="Svaya Kumud Night Balm" style={{ ...sealVideo, opacity: 1 }} />
+            <span style={sealEdgeWash} aria-hidden="true" />
           </div>
           <div style={{ ...finaleText, opacity: 1, transform: 'none', marginTop: 20 }}>
             <h2 style={revealH}>Kumud Night Balm</h2>
@@ -193,7 +197,7 @@ export default function ScrollHero() {
   }
 
   return (
-    <section ref={sectionRef} style={{ height: '440vh', position: 'relative' }}>
+    <section ref={sectionRef} style={{ height: '560vh', position: 'relative' }}>
       <div ref={stageRef} style={stage}>
         <div ref={spotRef} style={spotlight} />
         {[...Array(7)].map((_, i) => (
@@ -210,10 +214,15 @@ export default function ScrollHero() {
             <linearGradient id="sv-ink" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#E0A126" /><stop offset="1" stopColor="#B5792A" />
             </linearGradient>
+            {/* reveal mask: a thick solid stroke that "draws" via dash-offset, unmasking the dotted line beneath it */}
+            <mask id="sv-reveal">
+              <path ref={inkRef} fill="none" stroke="#fff" strokeWidth="22" strokeLinecap="round" />
+            </mask>
           </defs>
           <path ref={guideRef} fill="none" stroke="var(--sv-saffron)" strokeOpacity="0.22" strokeWidth="2"
             strokeLinecap="round" strokeDasharray="1 9" />
-          <path ref={inkRef} fill="none" stroke="url(#sv-ink)" strokeWidth="2.6" strokeLinecap="round" />
+          <path ref={dotRef} fill="none" stroke="url(#sv-ink)" strokeWidth="5" strokeLinecap="round"
+            strokeDasharray="1 14" mask="url(#sv-reveal)" />
         </svg>
 
         {/* Act 1 - brand name */}
@@ -244,6 +253,7 @@ export default function ScrollHero() {
             <span ref={glowRef} style={sealGlow} aria-hidden="true" />
             <video ref={videoRef} src={SEAL_VIDEO} poster={SEAL_POSTER} muted playsInline preload="auto"
               tabIndex={-1} aria-hidden="true" style={sealVideo} />
+            <span style={sealEdgeWash} aria-hidden="true" />
           </div>
           <div ref={finaleTextRef} style={finaleText}>
             <h2 style={revealH}>Kumud Night Balm</h2>
@@ -294,12 +304,18 @@ const sealWrap = {
 }
 const jarBox = { position: 'relative', width: JAR_W, aspectRatio: '4 / 5', overflow: 'hidden', lineHeight: 0 }
 // long, gradual oval feather: jar stays crisp in the centre while the studio backdrop dissolves into ivory over a wide ramp — no perceptible boundary
-const jarFeather = 'radial-gradient(62% 66% at 50% 49%, #000 30%, rgba(0,0,0,0.55) 56%, rgba(0,0,0,0) 82%)'
+const jarFeather = 'radial-gradient(64% 68% at 50% 49%, #000 22%, rgba(0,0,0,0.45) 54%, rgba(0,0,0,0) 92%)'
 const sealVideo = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 50%', display: 'block', transform: 'scale(1.12)', opacity: 0, willChange: 'opacity, transform' }
 const sealGlow = {
   position: 'absolute', left: '50%', top: '46%', width: '170%', aspectRatio: 1, borderRadius: '50%',
   transform: 'translate(-50%,-50%)', opacity: 0, pointerEvents: 'none', willChange: 'transform, opacity',
   background: 'radial-gradient(circle, rgba(231,201,126,0.5) 0%, rgba(246,241,231,0.55) 30%, rgba(246,241,231,0) 66%)'
+}
+// edge wash: paints over the video's own edge tone with the page's exact ivory, so the mask's
+// fade dissolves into matching colour instead of an abrupt cut against a mismatched backdrop
+const sealEdgeWash = {
+  position: 'absolute', inset: 0, pointerEvents: 'none',
+  background: 'radial-gradient(64% 68% at 50% 49%, rgba(239,231,214,0) 50%, rgba(239,231,214,0.85) 76%, rgba(239,231,214,1) 100%)'
 }
 
 // --- vector gold medallion (double-sided coin) ---
